@@ -192,7 +192,7 @@ function OnLoadScreenContentReady()
 	
 	local primaryColor, secondaryColor  = UI.GetPlayerColors( localPlayer );
     local playerIsSpectator = playerConfig ~= nil and playerConfig:GetLeaderTypeName() == "LEADER_SPECTATOR";
-    local isTournamentGame = GameConfiguration.GetValue("CPL_BAN_FORMAT") == 3;
+    local isTournamentGame = GameConfiguration.GetValue("MPH_OFFICIAL_GAME") ~= nil and GameConfiguration.GetValue("MPH_OFFICIAL_GAME") == true;
 
     if playerIsSpectator then
         primaryColor = UI.GetColorValueFromHexLiteral(0xff99aaaa);
