@@ -37,7 +37,7 @@ function OnLoadScreenClose()
 				if bspec == false then
 					local tmp_string = "Better Spectator Mod"..g_version..": This game is being observed by "..Game:GetProperty("SPEC_NUM").." Observer(s)"
 				end
-				UIEvents.UICleanBoost()
+				--UIEvents.UICleanBoost()
 				else
 				local tmp_string = "Better Spectator Mod "..g_version..": No Observer in this game!"
 				
@@ -573,10 +573,64 @@ function GPData()
 
 end
 
+function WritingBoostUIHook(player1ID, player2ID)
+	--print("Test U1", tostring(Players[0]:GetTechs():HasBoostBeenTriggered(GameInfo.Technologies["TECH_WRITING"].Index,true)))
+	--print("Test U2", tostring(Players[0]:GetTechs():HasBoostBeenTriggered(GameInfo.Technologies["TECH_WRITING"].Index,false)))
+	--print("Test U3", tostring(Players[0]:GetTechs():HasBoostBeenTriggered(GameInfo.Technologies["TECH_WRITING"].Index)))
+	local sPlayer1LeaderName = PlayerConfigurations[player1ID]:GetLeaderTypeName()
+	local sPlayer2LeaderName = PlayerConfigurations[player2ID]:GetLeaderTypeName()
+	local pPlayer1 = Players[player1ID]
+	local pPlayer2 = Players[player2ID]
+	local bMajNotSpec1 = false
+	local bMajNotSpec2 = false
+	if pPlayer1 == nil then
+		return
+	end
+	if pPlayer2 == nil then
+		return
+	end
+	if pPlayer1:IsMajor() and sPlayer1LeaderName~="LEADER_SPECTATOR" then
+		bMajNotSpec1 = true
+	end
+	if pPlayer2:IsMajor() and sPlayer1LeaderName~="LEADER_SPECTATOR" then
+		bMajNotSpec2 = true
+	end
+	if bMajNotSpec1 and bMajNotSpec2 then
+		print("Both Players are (Major and not Spec) -> proceed...")
+		print("Major "..sPlayer1LeaderName.." Meets Major "..sPlayer2LeaderName.." UI side")
+		local kParameters:table = {}
+		local values = {}
+		if (Players[player1ID]:GetTechs():HasBoostBeenTriggered(GameInfo.Technologies["TECH_WRITING"].Index)==false) then
+			table.insert(values, player1ID)
+		end 
+		if (Players[player2ID]:GetTechs():HasBoostBeenTriggered(GameInfo.Technologies["TECH_WRITING"].Index)==false) then
+			table.insert(values, player2ID)
+		end
+		if #values>0 and values~={} then
+			local kParameters:table = {}
+			kParameters.value = values
+			kParameters.OnStart = "ApplyWritingBoost"
+			UI.RequestPlayerOperation(Game.GetLocalPlayer(), PlayerOperations.EXECUTE_SCRIPT, kParameters)
+			print("ID's to boost are sent to Spectator.lua Gameplay context")
+		end
+	end
+end
 
+Events.DiplomacyMeet.Add(WritingBoostUIHook)
 
 function OnLocalPlayerTurnBeginNotification()
 	GPData()	
+end
+
+function OnLocalPlayerTurnBeginRecalculateBoost()
+	print("Local player raise Game Event begin")
+	local currentTurn = Game.GetCurrentGameTurn()
+	if currentTurn == GameConfiguration.GetStartTurn() then
+		local kParameters:table = {}
+		kParameters.OnStart = "FirstHumanTurnRecalculateBoost"
+		UI.RequestPlayerOperation(Game.GetLocalPlayer(), PlayerOperations.EXECUTE_SCRIPT, kParameters)
+		print("OnLocalPlayerTurnBeginRecalculateBoost sent request to Gameplay")
+	end	
 end
 
 function Initialize()
@@ -584,7 +638,7 @@ function Initialize()
 	if Game.GetLocalPlayer() == nil or Players[Game.GetLocalPlayer()] == nil then
 		return
 	end
-	
+
 	if PlayerConfigurations[Game.GetLocalPlayer()]:GetLeaderTypeName() == "LEADER_SPECTATOR" then
 		-- only subscribe for Spectators
 		Events.CityAddedToMap.Add( 									OnCityAddedToMap );
@@ -596,6 +650,8 @@ function Initialize()
 		Events.LocalPlayerTurnBegin.Add(							OnLocalPlayerTurnBeginNotification );
 		Events.UnitCaptured.Add(									OnUnitCaptured);
 		Events.DistrictAddedToMap.Add (								OnDistrictAddedToMap );
+	else
+		Events.LocalPlayerTurnBegin.Add(OnLocalPlayerTurnBeginRecalculateBoost)
 	end
 
 end

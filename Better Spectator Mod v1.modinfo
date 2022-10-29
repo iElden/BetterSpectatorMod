@@ -6,7 +6,7 @@
         </Description>
         <Created>1</Created>
         <Teaser>LOC_BSM_TEASER</Teaser>
-        <Authors>D. / Jack The Narrator</Authors>
+        <Authors>D. / Jack The Narrator, FlashyFeeds</Authors>
         <SpecialThanks>Civfanatics.com, CPL, Gedemon, Sukritact, Zur13, Je, DELUXEPhilipe, Malm, Michael</SpecialThanks>
         <CompatibleVersions>1.2,2.0</CompatibleVersions>
         <Version>123</Version>
@@ -76,6 +76,12 @@
             <File>SPECTATOR_Religious.sql</File>
         </UpdateDatabase>
 
+        <UpdateDatabase id = "WritingBoostFix">
+            <Properties>
+                <LoadOrder>9999</LoadOrder>
+            </Properties>
+            <File>Data/Spectator.sql</File>
+        </UpdateDatabase>
 
         <AddUserInterfaces>
             <Properties>
@@ -162,6 +168,13 @@
                 <LuaReplace>UI/Replacements/worldinput_spec.lua</LuaReplace>
             </Properties>
         </ReplaceUIScript>
+
+        <ImportFiles id="Spectator_UI_events">
+            <Properties>
+                <LoadOrder>9999</LoadOrder>
+            </Properties>
+            <File>UI/Spectator_UI.lua</File>
+        </ImportFiles>
 
         <ImportFiles id="Spectator_ToolTipHelper_PlayerYields">
             <Properties>
@@ -286,6 +299,8 @@
         <File>UI/Replacements/unitpanel_spec.lua</File>
         <File>UI/Replacements/worldinput_spec.lua</File>
         <File>UI/Replacements/worldtracker.lua</File>
+
+        <File>Data/Spectator.sql</File>
 
         <File>Configuration/Config.xml</File>
         <File>Configuration/Config_Beta.xml</File>
